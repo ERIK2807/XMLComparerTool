@@ -68,6 +68,7 @@ function displayResult(result) {
 
 // Función recursiva para comparar nodos XML
 function compareNodes(node1, node2) {
+    console.log("comparaNodes")
     // Inicializar el resultado para este nivel de nodos
     let result = '';
 
@@ -116,29 +117,11 @@ function compareNodes(node1, node2) {
     const childNames1 = children1.map(child => child.nodeName);
     const childNames2 = children2.map(child => child.nodeName);
 
-    if (!arraysEqual(childNames1, childNames2)) {
-        result += `<div class="mismatch">Los nombres de los nodos hijos de &#60;${node1.nodeName}&#62; en XML Base y &#60;${node2.nodeName}&#62; en XML a Comparar no coinciden.</div>`;
-    }
-
-    // Recorrer cada hijo de node1 y buscar un equivalente en node2
-    for (let i = 0; i < children1.length; i++) {
-        const child1 = children1[i];
-        let child2 = children2[i]
-        
-        //Valida primero sí coincide la posición del nodo1 y nodo2
-        if(child1.nodeName === child2.nodeName){
-            result += compareNodes(child1, child2);
-        } else{
-            child2 = children2.find(child => child.nodeName === child1.nodeName);
-            // Si no se encuentra el equivalente del hijo en node2, agregar mensaje de desacuerdo
-            if (!child2) {
-                result += `<div class="mismatch">No se encontró el nodo hijo &#60;${child1.nodeName}&#62; de XML Base en el nodo &#60;${node2.nodeName}&#62; del XML a comparar.</div>`;
-            } else {
-                // Comparar recursivamente los hijos
-                result += compareNodes(child1, child2);
-            }
-        }
-    }
+    // Validar que las longitudes de los nodos hijos cumpla que node1 >= node2
+    children1.length == children2.length
+                        ? result+=recorrernode1(children1, children2,result,node2,node1)
+                        : console.log("No coincide lalongitud de los nodos hijos");
+    
 
     // Si no se han encontrado discrepancias, agregar mensaje de coincidencia
     if (result === '') {
@@ -147,6 +130,34 @@ function compareNodes(node1, node2) {
     }
 
     // Retornar el resultado para este nivel de nodos
+    return result;
+}
+
+// funcion para Recorrer cada hijo de node1 y buscar un equivalente en node2
+const recorrernode1 = (children1, children2,result,node2,node1)=>{
+    // console.log("node2:",node2, node2.nodeName,"\n")
+    for (let i = 0; i < children1.length; i++) {
+        const child1 = children1[i];
+        let child2 = children2[i]
+        console.log(children1, children2)
+        
+        
+        //Valida primero sí coincide la posición del nodo1 y nodo2
+        if(child1.nodeName === child2.nodeName){
+            result += compareNodes(child1, child2);
+        } else{
+            console.log("no coincide:")
+            child2 = children2.find(child => child.nodeName === child1.nodeName);
+            // Si no se encuentra el equivalente del hijo en node2, agregar mensaje de desacuerdo
+            if (!child2) {
+                result += `<div class="mismatch">Los nombres de los nodos hijos de &#60;${node1.nodeName}&#62; no coinciden.<br>No se encontró el nodo hijo &#60;${child1.nodeName}&#62; del XML Base en el nodo &#60;${node2.nodeName}&#62; del XML a comparar.</div>`;
+            } else {
+                // Comparar recursivamente los hijos
+                result += compareNodes(child1, child2);
+            }
+        }
+    }
+    console.log(result)
     return result;
 }
 
